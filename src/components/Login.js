@@ -1,26 +1,52 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { fetchSignInMethodsForEmail, signInWithEmailAndPassword } from 'firebase/auth';
 import { Link } from 'react-router-dom';
-import { auth } from '../firebase';
+import Flight from './Flight';
+// import { auth } from '../firebase';
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [flag, setFlag] = useState(true);
+  let loginInfo;
+  loginInfo = JSON.parse(localStorage.getItem("userInfo"));
 
   const handlelogin = (e) => {
     e.preventDefault();
-    signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      console.log(user);
-    })
-    .catch((error) => {
-      error = alert("plz fill correct data")
-      console.log(error);
-    });
+    if (email !== "" && password !== "") {
+      const storageToLocal = {
+        email,
+        password
+      }
+      let data;
+      if (loginInfo.some((info) => {
+        if ((info.email===storageToLocal.email) && (info.password===storageToLocal.password)){
+          data=info;
+          return true;
+        }
+      }))
+      console.log(info);
+      {setFlag(!flag)}
+    }
+    // signInWithEmailAndPassword(auth, email, password)
+    // .then((userCredential) => {
+    //   const user = userCredential.user;
+    //   console.log(user);
+    // })
+    // .catch((error) => {
+    //   error = alert("plz fill correct data")
+    //   console.log(error);
+    // });
   };
+  const userEmail = (e) => {
+    setEmail(e.target.value)
+  }
+  const userPass = (e) => {
+    setPassword(e.target.value)
+  }
   return (
     <div>
+      {flag ? (
       <div className='d-flex aligns-items-center justify-content-center'>
         <div className='container card p-3 mt-2 w-50'>
       <h1 className='text-center bg-danger text-white p-2 mb-2'>Login Page</h1>
@@ -28,17 +54,18 @@ export default function Login() {
       <form onSubmit={handlelogin}>
         <div className='form-group p-2'>
             <label htmlFor='email'>Email :</label>
-            <input className="form-control" type='email' value={email} onChange={(e) => setEmail(e.target.value)} placeholder='Enter Email' required/>
+            <input className="form-control" type='email' onChange={userEmail} placeholder='Enter Email' required/>
         </div>
         <div className='form-group p-2'>
             <label htmlFor='password'>Password :</label>
-            <input className="form-control" type='password' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Password' required/>
+            <input className="form-control" type='password' onChange={userPass} placeholder='Password' required/>
         </div>
         <button className='btn btn-primary p-2 mt-2 form-control' type='submit'>Log In</button>
         <Link to='/login/signup'>New user? Sign Up</Link>
       </form>
     </div>
     </div>
+    ) : (<Flight />)}
     </div>
   )
 }
